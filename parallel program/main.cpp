@@ -34,6 +34,11 @@ int main(int argc, char** argv){
 		x[i] = new double[1];
 		temp[i] = new double[1];
 	}
+	struct tMatr* triple = new struct tMatr[count];
+	struct dMatr* couple = new struct dMatr[count];
+	struct Matr* once = new struct Matr[count];
+	struct ttMatr* ttriple = new struct ttMatr[count];
+	pthread_t* id = new pthread_t[count];
 	
 	std::time_t T1 = std::time(0);
 	
@@ -64,7 +69,7 @@ int main(int argc, char** argv){
 	printing_the_matrix(A, m, m);
 	printing_the_matrix(b, m, 1);
         std::time_t T3 = std::time(0);
-        function(A, b, x, temp, n, count);
+        function(A, b, x, temp, n, count, triple, couple, once, ttriple, id);
         std::time_t T4 = std::time(0);
 	
 	printing_the_matrix(A, m, m);
@@ -72,15 +77,16 @@ int main(int argc, char** argv){
 	std::cout << std::endl;
 	printing_the_matrix(x, m, 1);
 	
-        matrix_product(A, x, temp, n, n, n, 1, count);
+        matrix_product(A, x, temp, n, n, n, 1, count, triple, id);
 	for (int i = 0; i < n; i++){
 		temp[i][0] -= b[i][0];
 	}
 	
-        printf("\nNorm of nevyazki %10.3e \n", sqrt(norm_of_the_vector(temp, n, 0, 0, count)) / sqrt(norm_of_the_vector(b, n, 0, 0, count)));
+        printf("\nNorm of nevyazki %10.3e \n", 
+				sqrt(norm_of_the_vector(temp, n, 0, 0, count, once, id)) / sqrt(norm_of_the_vector(b, n, 0, 0, count, once, id)));
 	
 	
-        matrix_product(A, x, temp, n, n, n, 1, count);
+        matrix_product(A, x, temp, n, n, n, 1, count, triple, id);
 	for (int i = 0; i < n; i++){
 		if (i % 2){
 			temp[i][0] = x[i][0];
@@ -88,11 +94,25 @@ int main(int argc, char** argv){
 			temp[i][0] = x[i][0] - 1;
 		}
 	}
-        printf("Norm of pogreshnosti: %10.3e\n", sqrt(norm_of_the_vector(temp, n, 0, 0, count)));
+        printf("Norm of pogreshnosti: %10.3e\n", sqrt(norm_of_the_vector(temp, n, 0, 0, count, once, id)));
 	std::time_t T2 = std::time(0);
 	std::cout << "Time of algorithm working: " << T2 - T1 << "\n";
         std::cout << "Time of function working: " << T4 - T3 << "\n";
-	
-	
+		
+	for (int i = 0; i < n; i++){
+		delete[] A[i];
+		delete[] b[i];
+		delete[] x[i];
+		delete[] temp[i];
+	}
+	delete[] A;
+	delete[] b;
+	delete[] x;
+	delete[] temp;
+	delete[] triple;
+	delete[] couple;
+	delete[] once;
+	delete[] ttriple;
+	delete[] id;
 	return 0;
 }
